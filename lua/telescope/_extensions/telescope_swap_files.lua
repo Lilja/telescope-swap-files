@@ -3,6 +3,6 @@ return require("telescope").register_extension {
     -- access extension config and user config
   end,
   exports = {
-    telescope_swap_files = require("telescope-swap-files")()
+    telescope_swap_files = require("telescope_swap_files")()
   },
 }
