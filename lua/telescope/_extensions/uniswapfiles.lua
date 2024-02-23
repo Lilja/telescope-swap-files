@@ -6,6 +6,6 @@ return require("telescope").register_extension({
 		print("Registered telescope_swap_files with config")
 	end,
 	exports = {
-		telescope_swap_files = require("telescope_swap_files")(),
+		telescope_swap_files = require("telescope_swap_files"),
 	},
 })
