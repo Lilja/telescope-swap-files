@@ -33,8 +33,12 @@ local function attemptOpenFile(filename)
         print("File not found")
         return { false, nil }
     end
-    local last_modified = file:read("*a")
     file:close()
+    local f = io.popen("date -r " .. filenameCopy .. " +%s")
+    if f == nil then
+        return { false, nil }
+    end
+    local last_modified = f:read()
     return { true, os.date("%c", last_modified) }
 end
 
