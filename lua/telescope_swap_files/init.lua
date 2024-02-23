@@ -59,12 +59,9 @@ return function()
 					define_preview = function(self, entry, status)
             local fileMetadata = attemptOpenFile(entry["value"][1]:gsub("%%", "/"))
 						vim.api.nvim_buf_set_lines(self.state.bufnr, 0, -1, false, {
-							"Last modified",
+							"Swap file last modified",
 							entry["value"][2],
 							"",
-							"Original file name",
-							entry["value"][1],
-              "",
               "Original file exists?",
               fileMetadata[1] and "Yes" or "No",
               "",
