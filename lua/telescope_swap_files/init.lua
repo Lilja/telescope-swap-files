@@ -21,6 +21,20 @@ local function scandir(directory)
 	return t
 end
 
+local function attemptOpenFile(filename)
+    -- This function attemps to open file and returns the last modified time if successful
+    -- The file name probably ends with swp, swo etc. So that needs to be removed to open the actual referenced file
+    local filenameCopy = filename:gsub(".swp", ""):gsub(".swo", ""):gsub(".swn", "")
+    local file = io.open(filenameCopy, "r")
+    if file == nil then
+        print("File not found")
+        return { false, nil }
+    end
+    local last_modified = file:read("*a")
+    file:close()
+    return { true, os.date("%c", last_modified) }
+end
+
 return function()
 	local pickers = require("telescope.pickers")
 	local finders = require("telescope.finders")
@@ -36,12 +50,20 @@ return function()
 				previewer = previewers.new_buffer_previewer({
 					title = "Swap preview",
 					define_preview = function(self, entry, status)
+            local fileMetadata = attemptOpenFile(entry["value"][1])
 						vim.api.nvim_buf_set_lines(self.state.bufnr, 0, -1, false, {
 							"Last modified",
 							entry["value"][2],
 							"",
 							"Original file name",
 							entry["value"][1],
+              "",
+              "Original file exists?",
+              fileMetadata[1] and "Yes" or "No",
+              "",
+              "Original file last modified",
+              fileMetadata[2] or "N/A"
+
 						})
 					end,
 				}),
