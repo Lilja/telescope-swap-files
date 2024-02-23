@@ -53,7 +53,7 @@ return function()
 				previewer = previewers.new_buffer_previewer({
 					title = "Swap preview",
 					define_preview = function(self, entry, status)
-            local fileMetadata = attemptOpenFile(entry["value"][1])
+            local fileMetadata = attemptOpenFile(entry["value"][1]:gsub("%%", "/"))
 						vim.api.nvim_buf_set_lines(self.state.bufnr, 0, -1, false, {
 							"Last modified",
 							entry["value"][2],
