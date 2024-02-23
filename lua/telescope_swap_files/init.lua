@@ -21,8 +21,7 @@ local function scandir(directory)
 	return t
 end
 
--- return function()
-function Hello()
+return function()
 	local pickers = require("telescope.pickers")
 	local finders = require("telescope.finders")
 	local previewers = require("telescope.previewers")
