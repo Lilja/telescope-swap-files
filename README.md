@@ -21,3 +21,6 @@ Then make telescope load the extension
 ```lua
 require('telescope').load_extension('uniswapfiles')
 ```
+
+### Demo
+![image](https://github.com/Lilja/telescope-swap-files/assets/6134511/2963772b-51f3-4842-bacf-62668a0a60f2)
