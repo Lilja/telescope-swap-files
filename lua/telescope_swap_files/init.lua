@@ -24,7 +24,10 @@ end
 local function attemptOpenFile(filename)
     -- This function attemps to open file and returns the last modified time if successful
     -- The file name probably ends with swp, swo etc. So that needs to be removed to open the actual referenced file
-    local filenameCopy = filename:gsub(".swp", ""):gsub(".swo", ""):gsub(".swn", "")
+    local filenameCopy = filename
+    filenameCopy = string.gsub(filenameCopy, ".swp", "")
+    filenameCopy = string.gsub(filenameCopy, ".swo", "")
+
     local file = io.open(filenameCopy, "r")
     if file == nil then
         print("File not found")
