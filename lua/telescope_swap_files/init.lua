@@ -1,24 +1,45 @@
-function scandir(directory)
-	local i, t, popen = 0, {}, io.popen
+local function scandir(directory)
+	local t, popen = {}, io.popen
 	local pfile = popen('ls -a "' .. directory .. '"')
 	if pfile == nil then
 		return {}
 	end
 	for filename in pfile:lines() do
 		if filename ~= "." and filename ~= ".." then
-			i = i + 1
 			-- TODO: Fix linux support
-			local f = io.popen("stat -f %m " .. directory .. filename)
+			local f = io.popen("date -r " .. directory .. filename .. " +%s")
 			if f == nil then
 				print("No output to stat cmd")
 				return 1
 			end
 			local last_modified = f:read()
-			t[i] = { filename, os.date("%Y-%m-%d %H:%M", last_modified) }
+      -- date returns time in unix epoch format
+			table.insert(t, { filename, os.date("%c", last_modified) })
 		end
 	end
 	pfile:close()
 	return t
+end
+
+local function attemptOpenFile(filename)
+    -- This function attemps to open file and returns the last modified time if successful
+    -- The file name probably ends with swp, swo etc. So that needs to be removed to open the actual referenced file
+    local filenameCopy = filename
+    filenameCopy = string.gsub(filenameCopy, ".swp", "")
+    filenameCopy = string.gsub(filenameCopy, ".swo", "")
+
+    local file = io.open(filenameCopy, "r")
+    if file == nil then
+        print("File not found")
+        return { false, nil }
+    end
+    file:close()
+    local f = io.popen("date -r " .. filenameCopy .. " +%s")
+    if f == nil then
+        return { false, nil }
+    end
+    local last_modified = f:read()
+    return { true, os.date("%c", last_modified) }
 end
 
 return function()
@@ -34,14 +55,19 @@ return function()
 		pickers
 			.new(opts, {
 				previewer = previewers.new_buffer_previewer({
-					title = "my preview",
+					title = "Swap preview",
 					define_preview = function(self, entry, status)
+            local fileMetadata = attemptOpenFile(entry["value"][1]:gsub("%%", "/"))
 						vim.api.nvim_buf_set_lines(self.state.bufnr, 0, -1, false, {
-							"Last modified",
+							"Swap file last modified",
 							entry["value"][2],
 							"",
-							"Original file name",
-							entry["value"][1],
+              "Original file exists?",
+              fileMetadata[1] and "Yes" or "No",
+              "",
+              "Original file last modified",
+              fileMetadata[2] or "N/A"
+
 						})
 					end,
 				}),
