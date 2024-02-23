@@ -1,27 +1,28 @@
-function scandir(directory)
-	local i, t, popen = 0, {}, io.popen
+local function scandir(directory)
+	local t, popen = {}, io.popen
 	local pfile = popen('ls -a "' .. directory .. '"')
 	if pfile == nil then
 		return {}
 	end
 	for filename in pfile:lines() do
 		if filename ~= "." and filename ~= ".." then
-			i = i + 1
 			-- TODO: Fix linux support
-			local f = io.popen("stat -f %m " .. directory .. filename)
+			local f = io.popen("date -r " .. directory .. filename .. " +%s")
 			if f == nil then
 				print("No output to stat cmd")
 				return 1
 			end
 			local last_modified = f:read()
-			t[i] = { filename, os.date("%Y-%m-%d %H:%M", last_modified) }
+      -- date returns time in unix epoch format
+			table.insert(t, { filename, os.date("%c", last_modified) })
 		end
 	end
 	pfile:close()
 	return t
 end
 
-return function()
+-- return function()
+function Hello()
 	local pickers = require("telescope.pickers")
 	local finders = require("telescope.finders")
 	local previewers = require("telescope.previewers")
@@ -34,7 +35,7 @@ return function()
 		pickers
 			.new(opts, {
 				previewer = previewers.new_buffer_previewer({
-					title = "my preview",
+					title = "Swap preview",
 					define_preview = function(self, entry, status)
 						vim.api.nvim_buf_set_lines(self.state.bufnr, 0, -1, false, {
 							"Last modified",
